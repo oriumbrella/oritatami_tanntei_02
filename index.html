@@ -162,11 +162,11 @@ function sendMail(){
 
     // 判定順で返信
     if(hasCorrect){
-      replyMessage="春野鏡子殺人事件についての報告を受領した。…そういえばパン屋のチラシが鞄の中に残っていた。そこが関連しているのだろうか。<br>今回も見事だった、また頼むよ。";
+      replyMessage="春野鏡子殺人事件についての報告を受領した。<br>…そういえばパン屋のチラシが鞄の中に残っていた。何か関連しているのだろうか…<br>パン屋に向ってみることとする。<br>今回も見事な推理だ。また頼むよ。";
       canPostToX=true;
     }
     else if(hasMita && hasShun){
-      replyMessage="君の推察は見事だった。私が早く見つけられていれば…いや、なんでもない";
+      replyMessage="君の推察は見事だった。<br>こんなことになるとは…君が見つけてくれてよかった<br>";
       canPostToX=false;
     }
     else if(hasMita){
@@ -178,14 +178,14 @@ function sendMail(){
       canPostToX=false;
     }
     else if(hasNF){
-      replyMessage="私のことが知りたいのか？…その辺にいるしがない探偵だ。";
+      replyMessage="私のことが知りたいのか？<br>…その辺にいるしがない探偵だ。<br>語れる過去も無い。";
       canPostToX=false;
     }
     else if(hasHint){
       replyMessage="同じ色だから、消えてしまったのではないだろうか…？";
       canPostToX=false;
     } else {
-      replyMessage="春野鏡子殺人事件についての報告を受領した。なるほど…情報が絞れない。申し訳ないがもう一度確認してもらえないだろうか。";
+      replyMessage="春野鏡子殺人事件についての報告を受領した。<br>なるほど…情報が絞れない。<br>申し訳ないがもう一度確認してもらえないだろうか。";
       canPostToX=false;
     }
 
@@ -228,10 +228,20 @@ function closeReply(){
   answerBox.focus();
 }
 
-function postToX(){
-  const postText="【File002：おりたたみ探偵事務所　春野鏡子殺人事件】\n春野鏡子殺人事件の報告を完了。\nN.Fに報告した\n#おりたたみ探偵事務所 #謎解き";
-  const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(postText);
-  window.open(url,"_blank");
+function postToX() {
+  const originalTweetUrl = "https://twitter.com/元アカウント/status/1234567890"; // 引用したい元ツイートURL
+  const postText =
+    "【File002：おりたたみ探偵事務所　春野鏡子殺人事件】\n" +
+    "春野鏡子殺人事件の報告を完了。\n" +
+    "N.Fに報告した\n" +
+    "#おりたたみ探偵事務所 #謎解き";
+
+  const url =
+    "https://twitter.com/intent/tweet?text=" +
+    encodeURIComponent(postText) +
+    "&url=" + encodeURIComponent(originalTweetUrl); // ここで元ツイートを引用
+
+  window.open(url, "_blank");
 }
 </script>
 </body>
