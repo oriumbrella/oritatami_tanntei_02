@@ -6,9 +6,19 @@
 <title>春野鏡子殺人事件　報告メール</title>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
-  height: 100vh;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
   background: #e9eef3;
   font-family: Arial, sans-serif;
   display: flex;
@@ -16,10 +26,140 @@ body {
   align-items: center;
   flex-direction: column;
   padding: 14px;
-  box-sizing: border-box;
 }
 
+/* ==============================
+   最初の受信メール
+============================== */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+.intro-mail {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+
+  width: 92%;
+  max-width: 650px;
+  max-height: 92vh;
+  overflow-y: auto;
+
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+
+  animation: introMailIn 0.35s ease;
+}
+
+.intro-header {
+  background: #2f3542;
+  color: white;
+  padding: 16px 20px;
+  font-weight: bold;
+  border-radius: 12px 12px 0 0;
+}
+
+.intro-info {
+  padding: 14px 20px;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.intro-body {
+  padding: 22px 20px;
+  line-height: 1.9;
+}
+
+.intro-body p {
+  margin: 0 0 16px;
+}
+
+.attachment-title {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #ddd;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.attachment {
+  display: block;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #dfe4ea;
+  border-radius: 8px;
+  background: #f8f9fa;
+  color: #222;
+  text-decoration: none;
+}
+
+.attachment:hover {
+  background: #eef1f4;
+}
+
+.attachment-image-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 180px;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.attachment img {
+  display: none;
+  width: 100%;
+  max-height: 430px;
+  object-fit: contain;
+  background: #eee;
+}
+
+.image-loading {
+  padding: 40px 10px;
+  color: #777;
+  text-align: center;
+}
+
+.image-error {
+  display: none;
+  padding: 40px 10px;
+  color: #777;
+  text-align: center;
+  line-height: 1.8;
+}
+
+.attachment-name {
+  display: block;
+  margin-top: 10px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.intro-footer {
+  padding: 16px 20px;
+  background: #f1f2f6;
+  text-align: right;
+  border-radius: 0 0 12px 12px;
+}
+
+/* ==============================
+   報告メール画面
+============================== */
+
 .app {
+  display: none;
   width: 100%;
   max-width: 760px;
 }
@@ -53,6 +193,7 @@ body {
 .label {
   width: 80px;
   color: #777;
+  flex-shrink: 0;
 }
 
 textarea {
@@ -66,7 +207,6 @@ textarea {
   outline: none;
   font-family: inherit;
   background: white;
-  box-sizing: border-box;
 }
 
 .footer {
@@ -83,6 +223,10 @@ button {
   padding: 10px 28px;
   font-size: 15px;
   cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
 }
 
 button:disabled {
@@ -106,8 +250,12 @@ button:disabled {
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
   cursor: pointer;
-  animation: fadeIn 0.5s;
+  animation: notificationIn 0.4s ease;
 }
+
+/* ==============================
+   返信メール
+============================== */
 
 .reply {
   display: none;
@@ -115,15 +263,19 @@ button:disabled {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
   width: 90%;
   max-width: 600px;
+  max-height: 88vh;
+  padding: 24px;
+
   background: white;
   color: #222;
   border-radius: 12px;
-  padding: 24px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+
+  overflow-y: auto;
   z-index: 1000;
-  box-sizing: border-box;
 }
 
 .reply-title {
@@ -136,6 +288,7 @@ button:disabled {
 
 #replyText {
   line-height: 1.8;
+  white-space: pre-wrap;
 }
 
 .closeBtn {
@@ -153,15 +306,13 @@ button:disabled {
 
 .closeBtn:hover {
   color: #000;
+  opacity: 1;
 }
 
 .overlay {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0,0,0,0.45);
   z-index: 999;
 }
@@ -172,9 +323,26 @@ footer {
   color: #555;
   text-align: center;
   width: 100%;
+  line-height: 1.6;
 }
 
-@keyframes fadeIn {
+/* ==============================
+   アニメーション
+============================== */
+
+@keyframes introMailIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes notificationIn {
   from {
     opacity: 0;
     transform: translateY(12px);
@@ -186,13 +354,42 @@ footer {
   }
 }
 
+/* ==============================
+   スマートフォン
+============================== */
+
 @media(max-width:600px) {
   body {
-    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .intro-mail {
+    width: calc(100% - 20px);
+    max-height: calc(100vh - 20px);
+  }
+
+  .intro-info {
+    padding: 13px 16px;
+  }
+
+  .intro-body {
+    padding: 18px 16px;
+  }
+
+  .intro-footer {
+    padding: 14px 16px;
+  }
+
+  .attachment img {
+    max-height: 360px;
   }
 
   .row {
     padding: 12px 16px;
+  }
+
+  .label {
+    width: 70px;
   }
 
   textarea {
@@ -201,9 +398,16 @@ footer {
     font-size: 15px;
   }
 
-  button {
+  .footer button,
+  .intro-footer button {
     width: 100%;
     padding: 13px;
+  }
+
+  .reply {
+    width: calc(100% - 20px);
+    max-height: calc(100vh - 20px);
+    padding: 22px 18px;
   }
 
   .closeBtn {
@@ -215,10 +419,99 @@ footer {
 
 <body>
 
-<div class="app">
+<!-- 最初に表示される受信メール -->
+<div id="introOverlay" class="intro-overlay"></div>
+
+<div id="introMail" class="intro-mail">
+
+  <div class="intro-header">
+    新着メール
+  </div>
+
+  <div class="intro-info">
+    <strong>From:</strong> N.F@koreha.fiction.da<br>
+    <strong>To:</strong> あなた<br>
+    <strong>Subject:</strong> 殺人事件の捜査依頼
+  </div>
+
+  <div class="intro-body">
+
+    <p>
+      殺人事件が起きた。現場には謎が残されている。
+    </p>
+
+    <p>
+      そこから犯人に関する手がかりを見つけてもらえないか。
+    </p>
+
+    <p>
+      資料はまとめて添付しておいた。
+    </p>
+
+    <p>
+      何かわかったり気になることがあれば聞いてくれ。
+    </p>
+
+    <p>
+      ―― N.F
+    </p>
+
+    <div class="attachment-title">
+      添付ファイル 1件
+    </div>
+
+    <a
+      class="attachment"
+      href="./file002_資料?v=20260729-2"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+
+      <div class="attachment-image-area">
+
+        <div id="imageLoading" class="image-loading">
+          画像を読み込んでいます…
+        </div>
+
+        <img
+          id="attachmentImage"
+          src="./file002_資料.png?v=20260729-2"
+          alt="殺人事件の捜査資料"
+        >
+
+        <div id="imageError" class="image-error">
+          画像を表示できませんでした。<br>
+          「file002_資料」が<br>
+          index.htmlと同じ場所にあるか確認してください。
+        </div>
+
+      </div>
+
+      <span class="attachment-name">
+        📎 file002_資料<br>
+        クリックすると画像を拡大表示します
+      </span>
+
+    </a>
+
+  </div>
+
+  <div class="intro-footer">
+    <button type="button" onclick="startReport()">
+      調査を開始する
+    </button>
+  </div>
+
+</div>
+
+<!-- 報告メール画面 -->
+<div class="app" id="app">
 
   <div class="mail" id="mailBox">
-    <div class="header">春野鏡子殺人事件　報告メール</div>
+
+    <div class="header">
+      春野鏡子殺人事件　報告メール
+    </div>
 
     <div class="row">
       <div class="label">To</div>
@@ -237,23 +530,50 @@ footer {
     ></textarea>
 
     <div class="footer">
-      <button id="sendButton" onclick="sendMail()" disabled>送信</button>
+      <button
+        id="sendButton"
+        type="button"
+        onclick="sendMail()"
+        disabled
+      >
+        送信
+      </button>
     </div>
+
   </div>
 
-  <div id="status" class="status">送信中...</div>
+  <div id="status" class="status">
+    送信中...
+  </div>
 
-  <div id="notification" class="notification" onclick="openReply()">
+  <div
+    id="notification"
+    class="notification"
+    onclick="openReply()"
+  >
     📩 新着メール 1件<br>
     <strong>From: N.F@koreha.fiction.da</strong>
   </div>
 
 </div>
 
-<div id="overlay" class="overlay" onclick="closeReply()"></div>
+<!-- N.Fからの返信 -->
+<div
+  id="overlay"
+  class="overlay"
+  onclick="closeReply()"
+></div>
 
 <div id="reply" class="reply">
-  <button class="closeBtn" onclick="closeReply()">×</button>
+
+  <button
+    type="button"
+    class="closeBtn"
+    onclick="closeReply()"
+    aria-label="閉じる"
+  >
+    ×
+  </button>
 
   <div class="reply-title">
     From: N.F@koreha.fiction.da<br>
@@ -261,6 +581,7 @@ footer {
   </div>
 
   <div id="replyText"></div>
+
 </div>
 
 <footer>
@@ -269,20 +590,50 @@ footer {
 </footer>
 
 <script>
+const app = document.getElementById("app");
 const answerBox = document.getElementById("answer");
 const sendButton = document.getElementById("sendButton");
-
-function checkInput() {
-  sendButton.disabled = answerBox.value.trim() === "";
-}
 
 let replyMessage = "";
 let typingTimer = null;
 
+/* 元の反応ワード */
 const correctWords = ["bread", "BREAD", "パン"];
 const mitaWords = ["三田駅", "みたえき", "mitaeki"];
 const shunWords = ["春野鏡子"];
 const hintWords = ["わからない", "ヒント"];
+
+/* 添付画像の表示処理 */
+const attachmentImage = document.getElementById("attachmentImage");
+const imageLoading = document.getElementById("imageLoading");
+const imageError = document.getElementById("imageError");
+
+attachmentImage.addEventListener("load", function() {
+  imageLoading.style.display = "none";
+  imageError.style.display = "none";
+  attachmentImage.style.display = "block";
+});
+
+attachmentImage.addEventListener("error", function() {
+  imageLoading.style.display = "none";
+  attachmentImage.style.display = "none";
+  imageError.style.display = "block";
+});
+
+/* 最初のメールを閉じて報告画面へ進む */
+function startReport() {
+  document.getElementById("introMail").style.display = "none";
+  document.getElementById("introOverlay").style.display = "none";
+  app.style.display = "block";
+
+  setTimeout(function() {
+    answerBox.focus();
+  }, 100);
+}
+
+function checkInput() {
+  sendButton.disabled = answerBox.value.trim() === "";
+}
 
 function sendMail() {
   const input = answerBox.value.trim();
@@ -303,37 +654,54 @@ function sendMail() {
   status.style.display = "block";
   status.textContent = "送信中...";
 
-  const hasCorrect = correctWords.some(word => input.includes(word));
-  const hasMita = mitaWords.some(word => input.includes(word));
-  const hasShun = shunWords.some(word => input.includes(word));
-  const hasHint = hintWords.some(word => input.includes(word));
+  const hasCorrect = correctWords.some(function(word) {
+    return input.includes(word);
+  });
 
-  setTimeout(() => {
+  const hasMita = mitaWords.some(function(word) {
+    return input.includes(word);
+  });
+
+  const hasShun = shunWords.some(function(word) {
+    return input.includes(word);
+  });
+
+  const hasHint = hintWords.some(function(word) {
+    return input.includes(word);
+  });
+
+  setTimeout(function() {
     button.textContent = "✓ 送信済み";
     status.textContent = "送信済み";
   }, 1200);
 
-  setTimeout(() => {
+  setTimeout(function() {
     status.style.display = "none";
     notification.style.display = "block";
 
     if (hasMita && hasShun) {
-      replyMessage = "君の推察は見事だった。私が早く見つけられていれば…いや、なんでもない";
+      replyMessage =
+`君の推察は見事だった。私が早く見つけられていれば…いや、なんでもない`;
     }
     else if (hasMita) {
-      replyMessage = "君の推察は見事だった。しかしこんなことになってしまうとは…";
+      replyMessage =
+`君の推察は見事だった。しかしこんなことになってしまうとは…`;
     }
     else if (hasShun) {
-      replyMessage = "私が早く見つけられていれば…いや、なんでもない";
+      replyMessage =
+`私が早く見つけられていれば…いや、なんでもない`;
     }
     else if (hasHint) {
-      replyMessage = "同じ色だから、消えてしまったのではないだろうか…？";
+      replyMessage =
+`同じ色だから、消えてしまったのではないだろうか…？`;
     }
     else if (hasCorrect) {
-      replyMessage = "春野鏡子殺人事件についての報告を受領した。…そういえばパン屋のチラシが鞄の中に残っていた。そこが関連しているのだろうか。今回も見事だった、また頼むよ。";
+      replyMessage =
+`春野鏡子殺人事件についての報告を受領した。…そういえばパン屋のチラシが鞄の中に残っていた。そこが関連しているのだろうか。今回も見事だった、また頼むよ。`;
     }
     else {
-      replyMessage = "春野鏡子殺人事件についての報告を受領した。なるほど…情報が絞れない。申し訳ないがもう一度確認してもらえないだろうか。";
+      replyMessage =
+`春野鏡子殺人事件についての報告を受領した。なるほど…情報が絞れない。申し訳ないがもう一度確認してもらえないだろうか。`;
     }
   }, 2800);
 }
@@ -347,7 +715,7 @@ function openReply() {
   document.getElementById("overlay").style.display = "block";
   reply.style.display = "block";
 
-  replyText.innerHTML = "";
+  replyText.textContent = "";
 
   let i = 0;
 
@@ -355,8 +723,8 @@ function openReply() {
     clearInterval(typingTimer);
   }
 
-  typingTimer = setInterval(() => {
-    replyText.innerHTML = replyMessage.slice(0, i);
+  typingTimer = setInterval(function() {
+    replyText.textContent = replyMessage.slice(0, i);
     i++;
 
     if (i > replyMessage.length) {
@@ -366,6 +734,10 @@ function openReply() {
 }
 
 function closeReply() {
+  if (typingTimer) {
+    clearInterval(typingTimer);
+  }
+
   document.getElementById("reply").style.display = "none";
   document.getElementById("overlay").style.display = "none";
   document.getElementById("notification").style.display = "none";
