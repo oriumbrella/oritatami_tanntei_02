@@ -309,6 +309,26 @@ button:disabled {
   opacity: 1;
 }
 
+/* 正解時に表示するX報告ボタン */
+.xPostBtn {
+  display: none;
+  width: auto;
+  margin: 26px auto 0;
+  padding: 11px 22px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  animation: xButtonIn 0.55s ease;
+}
+
+.xPostBtn:hover {
+  opacity: 0.82;
+}
+
 .overlay {
   display: none;
   position: fixed;
@@ -346,6 +366,18 @@ footer {
   from {
     opacity: 0;
     transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes xButtonIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 
   to {
@@ -410,7 +442,8 @@ footer {
     padding: 22px 18px;
   }
 
-  .closeBtn {
+  .closeBtn,
+  .xPostBtn {
     width: auto;
   }
 }
@@ -582,6 +615,15 @@ footer {
 
   <div id="replyText"></div>
 
+  <button
+    id="xPostButton"
+    type="button"
+    class="xPostBtn"
+    onclick="postToXWithQuote()"
+  >
+    Xで報告する
+  </button>
+
 </div>
 
 <footer>
@@ -596,6 +638,7 @@ const sendButton = document.getElementById("sendButton");
 
 let replyMessage = "";
 let typingTimer = null;
+let canPostToX = false;
 
 /* 元の反応ワード */
 const correctWords = ["bread", "BREAD", "パン"];
@@ -679,6 +722,9 @@ function sendMail() {
     status.style.display = "none";
     notification.style.display = "block";
 
+    /* X報告ボタンは正解返信のときだけ有効 */
+    canPostToX = false;
+
     if (hasMita && hasShun) {
       replyMessage =
 `君の推察は見事だった。私が早く見つけられていれば…いや、なんでもない`;
@@ -696,6 +742,7 @@ function sendMail() {
 `同じ色だから、消えてしまったのではないだろうか…？`;
     }
     else if (hasCorrect) {
+      canPostToX = true;
       replyMessage =
 `春野鏡子殺人事件についての報告を受領した。…そういえばパン屋のチラシが鞄の中に残っていた。そこが関連しているのだろうか。今回も見事だった、また頼むよ。`;
     }
@@ -710,12 +757,14 @@ function openReply() {
   const notification = document.getElementById("notification");
   const reply = document.getElementById("reply");
   const replyText = document.getElementById("replyText");
+  const xPostButton = document.getElementById("xPostButton");
 
   notification.style.display = "none";
   document.getElementById("overlay").style.display = "block";
   reply.style.display = "block";
 
   replyText.textContent = "";
+  xPostButton.style.display = "none";
 
   let i = 0;
 
@@ -729,6 +778,12 @@ function openReply() {
 
     if (i > replyMessage.length) {
       clearInterval(typingTimer);
+
+      if (canPostToX) {
+        setTimeout(function() {
+          xPostButton.style.display = "block";
+        }, 350);
+      }
     }
   }, 25);
 }
@@ -741,6 +796,7 @@ function closeReply() {
   document.getElementById("reply").style.display = "none";
   document.getElementById("overlay").style.display = "none";
   document.getElementById("notification").style.display = "none";
+  document.getElementById("xPostButton").style.display = "none";
 
   document.getElementById("mailBox").classList.remove("sending");
 
@@ -748,6 +804,26 @@ function closeReply() {
 
   checkInput();
   answerBox.focus();
+}
+
+/* Xで元ポストを引用して報告 */
+function postToXWithQuote() {
+  const originalPostUrl =
+    "https://x.com/r4lu3m8l/status/2066838202921480355?s=20";
+
+  const postText =
+`【File002：おりたたみ探偵事務所　春野鏡子殺人事件】
+春野鏡子殺人事件の報告を完了。
+N.Fに報告した
+#おりたたみ探偵事務所 #謎解き`;
+
+  const postUrl =
+    "https://x.com/intent/tweet?text=" +
+    encodeURIComponent(postText) +
+    "&url=" +
+    encodeURIComponent(originalPostUrl);
+
+  window.open(postUrl, "_blank", "noopener,noreferrer");
 }
 </script>
 
